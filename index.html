@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>Audio Visualizer</h1>
-    <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
+    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
         <div id="image-upload">
             <label for="image-input">Upload Image:</label>
             <input type="file" id="image-input" name="image" accept="image/*">
@@ -20,7 +20,7 @@
         <button type="submit" id="generate-visualizer">Generate Visualizer</button>
     </form>
 
-    <canvas id="visualizer-canvas" width="400" height="300"></canvas>
+    <!-- You can display the visualizer here using HTML canvas or other elements -->
 
     <script>
         $(document).ready(function(){
@@ -31,7 +31,7 @@
                 var formData = new FormData(this);
                 
                 $.ajax({
-                    url: '/',
+                    url: '/upload',
                     type: 'POST',
                     data: formData,
                     contentType: false,
@@ -46,15 +46,5 @@
             });
         });
     </script>
-
-    <!-- Python code -->
-    {% if request.method == 'POST' %}
-        {% set image_file = request.files['image'] %}
-        {% set audio_file = request.files['audio'] %}
-        {% if image_file and audio_file %}
-            {% set success_message = "Visualizer generated successfully!" %}
-            <script>alert("{{ success_message }}");</script>
-        {% endif %}
-    {% endif %}
 </body>
 </html>
