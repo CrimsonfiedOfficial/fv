@@ -5,23 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Visualizer</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <h1>Audio Visualizer</h1>
-    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
-        <div id="image-upload">
-            <label for="image-input">Upload Image:</label>
-            <input type="file" id="image-input" name="image" accept="image/*">
-        </div>
-        <div id="audio-upload">
-            <label for="audio-input">Upload Audio:</label>
-            <input type="file" id="audio-input" name="audio" accept="audio/*">
-        </div>
-        <button type="submit" id="generate-visualizer">Generate Visualizer</button>
-    </form>
-
-    <!-- You can display the visualizer here using HTML canvas or other elements -->
-
     <script>
         $(document).ready(function(){
             $('#upload-form').submit(function(event){
@@ -45,6 +28,66 @@
                 });
             });
         });
+
+        // JavaScript for audio visualization
+        var audioElement = document.getElementById('audio-element');
+        var audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        var analyser = audioContext.createAnalyser();
+        var canvas = document.getElementById('visualizer-canvas');
+        var canvasCtx = canvas.getContext('2d');
+
+        function visualize() {
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+            var bufferLength = analyser.frequencyBinCount;
+            var dataArray = new Uint8Array(bufferLength);
+            analyser.getByteFrequencyData(dataArray);
+
+            var barWidth = (canvas.width / bufferLength) * 2.5;
+            var barHeight;
+            var x = 0;
+            for (var i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2;
+                canvasCtx.fillStyle = 'rgb(' + (barHeight + 100) + ',50,50)';
+                canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+
+            requestAnimationFrame(visualize);
+        }
+
+        // Call the visualize function to start visualization
+        visualize();
+
+        // Function to handle audio file input change
+        document.getElementById('audio-input').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            var objectURL = URL.createObjectURL(file);
+            audioElement.src = objectURL;
+        });
     </script>
+</head>
+<body>
+    <h1>Audio Visualizer</h1>
+    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+        <div id="image-upload">
+            <label for="image-input">Upload Image:</label>
+            <input type="file" id="image-input" name="image" accept="image/*">
+        </div>
+        <div id="audio-upload">
+            <label for="audio-input">Upload Audio:</label>
+            <input type="file" id="audio-input" name="audio" accept="audio/*">
+        </div>
+        <button type="submit" id="generate-visualizer">Generate Visualizer</button>
+    </form>
+
+    <!-- Audio element -->
+    <audio id="audio-element" controls>
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Canvas element for visualization -->
+    <canvas id="visualizer-canvas" width="400" height="300"></canvas>
 </body>
 </html>
